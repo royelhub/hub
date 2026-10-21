@@ -1,0 +1,41 @@
+
+name: Extract 5.zip and Commit
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "xxc/5.zip"
+      - ".github/workflows/extract-zip.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Extract 5.zip
+        run: |
+          set -e
+          mkdir -p xxc/extracted
+          unzip -o xxc/5.zip -d xxc/extracted
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -f xxc/extracted/
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Extract 5.zip into xxc"
+          git push
